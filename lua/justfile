@@ -3,7 +3,7 @@ default: run-all
 run-all:
     ./lua src/main.lua
 
-run-one NUM:
+run NUM:
     @./lua -e 'local succeded, _ = pcall(function() local p = require("src/p{{NUM}}");p.problem();end); if succeded == false then print("errored") end'
 
 list-problems:
