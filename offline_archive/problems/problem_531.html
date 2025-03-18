@@ -1,0 +1,18 @@
+<script src="/mathjax_config.js"></script><script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script><a href="/problem_532.html">Next</a> <a href="/problem_530.html">Previous</a><h1>Problem 531</h1><p>
+Let $g(a, n, b, m)$ be the smallest non-negative solution $x$ to the system:<br>
+$x = a \bmod n$<br>
+$x = b \bmod m$<br>
+if such a solution exists, otherwise $0$.
+</p>
+<p>
+E.g. $g(2,4,4,6)=10$, but $g(3,4,4,6)=0$.
+</p>
+<p>
+Let $\phi(n)$ be Euler's totient function.
+</p>
+<p>
+Let $f(n,m)=g(\phi(n),n,\phi(m),m)$
+</p>
+<p>
+Find $\sum f(n,m)$ for $1000000 \le n \lt m \lt 1005000$.
+</p>

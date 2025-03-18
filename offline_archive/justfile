@@ -1,0 +1,13 @@
+default:
+    #!/bin/bash
+    cmd=
+    if command -v docker ; then
+        cmd=docker
+    elif command -v podman ; then
+        cmd=podman
+    else
+        echo No docker env
+        exit 1
+    fi
+    open http://localhost:4356
+    $cmd run --rm -it -v {{source_dir()}}/problems:/usr/share/nginx/html:ro -p 4356:80 nginx:alpine
