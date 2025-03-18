@@ -9,7 +9,7 @@ function main()
 		end
 	end
 	table.sort(palindromes)
-	print(palindromes[#palindromes])
+	return palindromes[#palindromes]
 end
 local fns = {
 	problem = main,

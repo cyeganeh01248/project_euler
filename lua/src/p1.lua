@@ -6,7 +6,7 @@ function main()
 		end
 	end
 
-	print(sum)
+	return sum
 end
 local fns = {
 	problem = main,

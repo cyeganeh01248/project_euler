@@ -122,6 +122,20 @@ function prime_sieve(num)
 	return primes
 end
 
+function prime_factors(n)
+	local factors = {}
+	local piter = prime_iter()
+	local p = piter()
+	while n > 1 do
+		while n % p == 0 do
+			table.insert(factors, p)
+			n = n // p
+		end
+		p = piter()
+	end
+	return factors
+end
+
 function polygonal_number(s, n)
 	return (s - 2) * (n * (n - 1)) // 2 + n
 end
@@ -145,6 +159,7 @@ fns.is_palindrome = is_palindrome
 fns.is_prime = is_prime
 fns.prime_iter = prime_iter
 fns.prime_sieve = prime_sieve
+fns.prime_factors = prime_factors
 fns.polygonal_number = polygonal_number
 fns.polygonal_number_iter = polygonal_number_iter
 fns.triangle_number = function(n)

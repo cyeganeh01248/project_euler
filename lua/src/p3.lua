@@ -1,6 +1,6 @@
 -- 600851475143
 function main()
-	local utils = require("src.utils")
+	local utils = require("src/utils")
 
 	local number = 600851475143
 	local max_prime = -1
@@ -27,7 +27,7 @@ function main()
 		max_prime = number
 	end
 
-	print(max_prime)
+	return max_prime
 end
 local fns = {
 	problem = main,

@@ -5,7 +5,7 @@ function main()
 		return num % 2 == 0
 	end)
 	local sum = utils.sum(even_fibs)
-	print(sum)
+	return sum
 end
 local fns = {
 	problem = main,

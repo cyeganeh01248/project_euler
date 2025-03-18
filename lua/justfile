@@ -1,7 +1,7 @@
 default: run-all
 
 run-all:
-    ./lua src/main.lua
+    @./lua src/main.lua
 
 run NUM:
     @./lua -e 'local succeded, _ = pcall(function() local p = require("src/p{{NUM}}");p.problem();end); if succeded == false then print("errored") end'
@@ -10,6 +10,6 @@ list-problems:
     @ls src | grep 'p[0-9]*\.lua' | awk -F '.' '{print $1}' | sort -h
 
 new NUM:
-    @echo "function main()\n\t-- TODO\nend\nlocal fns = {\n\tproblem = main,\n}\nreturn fns"> src/p{{NUM}}.lua
-    @echo "require(\"src/p{{NUM}}\").problem()" >> src/main.lua
+    @echo "function main()\n\t-- TODO\n\treturn 0\nend\nlocal fns = {\n\tproblem = main,\n}\nreturn fns"> src/p{{NUM}}.lua
+    @echo "print(\"p{{NUM}}\", require(\"src/p{{NUM}}\").problem())" >> src/main.lua
     @sort src/main.lua | uniq > src/main.lua2 && mv src/main.lua2 src/main.lua
