@@ -1,14 +1,10 @@
-function main()
-	local sum = 0
-	for i = 1, 1000 - 1 do
-		if i % 3 == 0 or i % 5 == 0 then
-			sum = sum + i
-		end
-	end
+local function main()
+	local utils = require("src/utils")
 
-	return sum
+	return utils.functools.sum(utils.functools.filter(utils.tools.range(1, 1000 - 1), function(x)
+		return x % 3 == 0 or x % 5 == 0
+	end))
 end
-local fns = {
+return {
 	problem = main,
 }
-return fns

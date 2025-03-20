@@ -1,5 +1,4 @@
--- 600851475143
-function main()
+local function main()
 	local utils = require("src/utils")
 
 	local number = 600851475143
@@ -17,7 +16,7 @@ function main()
 			number = number // factor
 		else
 			factor = factor + 2
-			while not utils.is_prime(factor) do
+			while not utils.prime.is_prime(factor) do
 				factor = factor + 2
 			end
 		end
@@ -29,7 +28,6 @@ function main()
 
 	return max_prime
 end
-local fns = {
+return {
 	problem = main,
 }
-return fns

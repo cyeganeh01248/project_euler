@@ -1,7 +1,12 @@
 default:
-    echo Hello
+    just --list
 
-start-offline:
+run-lua:
+    #!/bin/bash
+    cd lua
+    just
+
+start-offline-server:
     #!/bin/bash
     cd offline_archive
     just

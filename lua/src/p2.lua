@@ -1,13 +1,14 @@
-function main()
+local function main()
 	local utils = require("src/utils")
-	local fibs = utils.fibs_until(4000000)
-	local even_fibs = utils.filter(fibs, function(num)
-		return num % 2 == 0
-	end)
-	local sum = utils.sum(even_fibs)
-	return sum
+	local bn = require("nums").bn
+	-- local fibs =
+	return utils.functools.sum(
+		utils.functools.filter(utils.tools.table_iter(utils.fibonacci.fibs_until(4000000)), function(n)
+			return n % bn(2) == bn(0)
+		end),
+		bn(0)
+	)
 end
-local fns = {
+return {
 	problem = main,
 }
-return fns

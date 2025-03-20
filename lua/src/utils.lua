@@ -1,31 +1,17 @@
-local fns = {}
-
-function fibs_until(max)
-	local fibs = {}
-
-	local a, b = 0, 1
-
-	while a < 4000000 do
-		table.insert(fibs, a)
-		a, b = b, a + b
+local function sum(iter, initial)
+	local cur_sum = initial or 0
+	for num in iter do
+		cur_sum = cur_sum + num
 	end
-	return fibs
+	return cur_sum
 end
 
-function sum(nums)
-	local sum = 0
-	for _, num in ipairs(nums) do
-		sum = sum + num
-	end
-	return sum
-end
-
-function zip(...)
+local function zip(...)
 	local iterators = { ... }
 	local function next()
 		local results = {}
-		for _, iterator in ipairs(iterators) do
-			local result = iterator()
+		for _, iter in ipairs(iterators) do
+			local result = iter()
 			if result == nil then
 				return nil
 			end
@@ -36,17 +22,23 @@ function zip(...)
 	return next
 end
 
-function filter(nums, predicate)
-	local filtered = {}
-	for _, num in ipairs(nums) do
-		if predicate(num) then
-			table.insert(filtered, num)
+local function filter(iter, predicate)
+	local function next()
+		while true do
+			local num = iter()
+			if num == nil then
+				return nil
+			end
+			if predicate(num) then
+				return num
+			end
 		end
 	end
-	return filtered
+
+	return next
 end
 
-function map(iter, func)
+local function map(iter, func)
 	local function next()
 		local result = iter()
 		if result == nil then
@@ -57,12 +49,12 @@ function map(iter, func)
 	return next
 end
 
-function is_palindrome(num)
+local function is_palindrome(num)
 	local str = tostring(num)
 	return str == str:reverse()
 end
 
-function is_prime(num)
+local function is_prime(num)
 	if num <= 1 then
 		return false
 	end
@@ -84,7 +76,7 @@ function is_prime(num)
 	return true
 end
 
-function prime_iter()
+local function prime_iter()
 	local i = 2
 	local primes_seen = {}
 	local function next()
@@ -101,7 +93,17 @@ function prime_iter()
 	return next
 end
 
-function prime_sieve(num)
+local function prime_n(n)
+	local p_iter = prime_iter()
+	local primes = {}
+	local p = p_iter()
+	for _ = 1, n - 1 do
+		table.insert(primes, p_iter())
+	end
+	return primes
+end
+
+local function prime_sieve(num)
 	local nums = {}
 	for i = 2, num do
 		nums[i] = true
@@ -122,7 +124,7 @@ function prime_sieve(num)
 	return primes
 end
 
-function prime_factors(n)
+local function prime_factors(n)
 	local factors = {}
 	local piter = prime_iter()
 	local p = piter()
@@ -136,11 +138,67 @@ function prime_factors(n)
 	return factors
 end
 
-function polygonal_number(s, n)
+local function fib(n)
+	local bn = require("nums").bn
+	local function fib_helper(a, b, n)
+		if n == 0 then
+			return a
+		elseif n == 1 then
+			return b
+		else
+			return fib_helper(b, a + b, n - 1)
+		end
+	end
+	return fib_helper(bn(0), bn(1), n)
+end
+
+local function fibs_until(max)
+	local bn = require("nums").bn
+	max = bn(max)
+	local a, b = bn(0), bn(1)
+	local fibs = {}
+
+	while a < max do
+		table.insert(fibs, a)
+		a, b = b, a + b
+	end
+	return fibs
+end
+
+local function fib_n(n)
+	local bn = require("nums").bn
+
+	local fibs = {}
+	local a, b = bn(0), bn(1)
+
+	while n > 0 do
+		table.insert(fibs, a)
+		a, b = b, a + b
+		n = n - 1
+	end
+	return fibs
+end
+
+local function fib_iter(max)
+	local bn = require("nums").bn
+	local a, b = bn(0), bn(1)
+
+	local function next()
+		local result = a
+		if max ~= nil and a > max then
+			return
+		end
+		a, b = b, a + b
+		return result
+	end
+	return next
+end
+
+local function polygonal_number(s, n)
 	return (s - 2) * (n * (n - 1)) // 2 + n
 end
 
-function polygonal_number_iter(s)
+local function polygonal_number_iter(s)
 	local i = 1
 	local function next()
 		local result = polygonal_number(s, i)
@@ -150,23 +208,101 @@ function polygonal_number_iter(s)
 	return next
 end
 
-fns.fibs_until = fibs_until
-fns.sum = sum
-fns.zip = zip
-fns.filter = filter
-fns.map = map
-fns.is_palindrome = is_palindrome
-fns.is_prime = is_prime
-fns.prime_iter = prime_iter
-fns.prime_sieve = prime_sieve
-fns.prime_factors = prime_factors
-fns.polygonal_number = polygonal_number
-fns.polygonal_number_iter = polygonal_number_iter
-fns.triangle_number = function(n)
-	return polygonal_number(3, n)
-end
-fns.triangle_number_iter = function()
-	return polygonal_number_iter(3)
+local function range(a, b, c)
+	local start = 1
+	local stop = 1
+	local step = 1
+
+	if a == nil and b == nil and c == nil then
+		start = 1
+		stop = 1
+		step = 1
+	elseif b == nil and c == nil then
+		start = 1
+		stop = a
+		step = 1
+	elseif c == nil then
+		start = a
+		stop = b
+		step = 1
+	else
+		start = a
+		stop = b
+		step = c
+	end
+
+	if step == 0 then
+		error("step cannot be zero")
+	end
+
+	local i = start
+	local function next()
+		local result = i
+		if stop ~= nil and (step > 0 and i > stop) or (step < 0 and i < stop) then
+			return
+		end
+		i = i + step
+		return result
+	end
+	return next
 end
 
-return fns
+local function collect(iter)
+	local result = {}
+	for item in iter do
+		table.insert(result, item)
+	end
+	return result
+end
+local function table_iter(t)
+	local i = 1
+	local function next()
+		if i > #t then
+			return
+		end
+		local result = t[i]
+		i = i + 1
+		return result
+	end
+	return next
+end
+
+return {
+	functools = {
+		sum = sum,
+		zip = zip,
+		filter = filter,
+		map = map,
+	},
+	general = {
+		is_palindrome = is_palindrome,
+	},
+	prime = {
+		is_prime = is_prime,
+		prime_iter = prime_iter,
+		prime_n = prime_n,
+		prime_sieve = prime_sieve,
+		prime_factors = prime_factors,
+	},
+	fibonacci = {
+		fib = fib,
+		fibs_until = fibs_until,
+		fib_n = fib_n,
+		fib_iter = fib_iter,
+	},
+	polygonal_num = {
+		polygonal_number = polygonal_number,
+		polygonal_number_iter = polygonal_number_iter,
+		triangle_number = function(n)
+			return polygonal_number(3, n)
+		end,
+		triangle_number_iter = function()
+			return polygonal_number_iter(3)
+		end,
+	},
+	tools = {
+		range = range,
+		collect = collect,
+		table_iter = table_iter,
+	},
+}

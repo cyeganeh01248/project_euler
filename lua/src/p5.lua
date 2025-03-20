@@ -1,9 +1,8 @@
-function main()
+local function main()
 	local utils = require("src/utils")
-	local bn = require("nums/bn")
-	facts = {}
+	local facts = {}
 	for i = 1, 20 do
-		local facts_sub = utils.prime_factors(i)
+		local facts_sub = utils.prime.prime_factors(i)
 		local fact_count = {}
 		for _, f in ipairs(facts_sub) do
 			fact_count[f] = (fact_count[f] or 0) + 1
@@ -18,7 +17,6 @@ function main()
 	end
 	return r
 end
-local fns = {
+return {
 	problem = main,
 }
-return fns

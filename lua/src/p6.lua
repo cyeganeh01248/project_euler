@@ -1,8 +1,7 @@
-function main()
+local function main()
 	-- TODO
 	return 0
 end
-local fns = {
+return {
 	problem = main,
 }
-return fns
