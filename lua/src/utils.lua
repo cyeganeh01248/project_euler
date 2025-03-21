@@ -1,3 +1,12 @@
+---@class BN
+
+local nums = require("nums")
+local bn = nums.bn
+
+---@generic T
+---@param iter fun():T An iterator of a type that supports add
+---@param initial T|nil The default value to start with
+---@return T
 local function sum(iter, initial)
 	local cur_sum = initial or 0
 	for num in iter do
@@ -6,9 +15,11 @@ local function sum(iter, initial)
 	return cur_sum
 end
 
+---@param ... fun():any Any iterators to zip
+---@return fun():any[]|nil iter
 local function zip(...)
 	local iterators = { ... }
-	local function next()
+	return function()
 		local results = {}
 		for _, iter in ipairs(iterators) do
 			local result = iter()
@@ -19,11 +30,14 @@ local function zip(...)
 		end
 		return results
 	end
-	return next
 end
 
+---@generic T
+---@param iter fun():T An iterator of a type that supports add
+---@param predicate fun(val:T):boolean A function to return a bool for be kept
+---@return fun():T iter
 local function filter(iter, predicate)
-	local function next()
+	return function()
 		while true do
 			local num = iter()
 			if num == nil then
@@ -34,26 +48,32 @@ local function filter(iter, predicate)
 			end
 		end
 	end
-
-	return next
 end
 
+---@generic T
+---@generic V
+---@param iter fun():T An iterator of a type that supports add
+---@param func fun(val:T):V A function to transform the type to the new value
+---@return fun():V iter
 local function map(iter, func)
-	local function next()
+	return function()
 		local result = iter()
 		if result == nil then
 			return nil
 		end
 		return func(result)
 	end
-	return next
 end
 
+---@param num number The number to check
+---@return boolean
 local function is_palindrome(num)
 	local str = tostring(num)
 	return str == str:reverse()
 end
 
+---@param num number The number to check
+---@return boolean
 local function is_prime(num)
 	if num <= 1 then
 		return false
@@ -76,6 +96,7 @@ local function is_prime(num)
 	return true
 end
 
+---@return fun():number iter A iterator over prime numbers
 local function prime_iter()
 	local i = 2
 	local primes_seen = {}
@@ -93,30 +114,34 @@ local function prime_iter()
 	return next
 end
 
+---@param n number The number of primes to return
+---@return number[]
 local function prime_n(n)
 	local p_iter = prime_iter()
 	local primes = {}
 	local p = p_iter()
-	for _ = 1, n - 1 do
+	for _ = 1, n do
 		table.insert(primes, p_iter())
 	end
 	return primes
 end
 
-local function prime_sieve(num)
+---@param n number The max number to check up to
+---@return number[]
+local function prime_sieve(n)
 	local nums = {}
-	for i = 2, num do
+	for i = 2, n do
 		nums[i] = true
 	end
-	for i = 2, math.sqrt(num) do
+	for i = 2, math.sqrt(n) do
 		if nums[i] then
-			for j = i * i, num, i do
+			for j = i * i, n, i do
 				nums[j] = false
 			end
 		end
 	end
 	local primes = {}
-	for i = 2, num do
+	for i = 2, n do
 		if nums[i] then
 			table.insert(primes, i)
 		end
@@ -124,6 +149,8 @@ local function prime_sieve(num)
 	return primes
 end
 
+---@param n number The number to check
+---@return number[]
 local function prime_factors(n)
 	local factors = {}
 	local piter = prime_iter()
@@ -138,22 +165,24 @@ local function prime_factors(n)
 	return factors
 end
 
+---@param n number The nth fib to get
+---@return BN
 local function fib(n)
-	local bn = require("nums").bn
-	local function fib_helper(a, b, n)
-		if n == 0 then
+	local function fib_helper(a, b, num_remaining)
+		if num_remaining == 0 then
 			return a
-		elseif n == 1 then
+		elseif num_remaining == 1 then
 			return b
 		else
-			return fib_helper(b, a + b, n - 1)
+			return fib_helper(b, a + b, num_remaining - 1)
 		end
 	end
 	return fib_helper(bn(0), bn(1), n)
 end
 
+---@param max number The max number of the fibs to get
+---@return BN[]
 local function fibs_until(max)
-	local bn = require("nums").bn
 	max = bn(max)
 	local a, b = bn(0), bn(1)
 	local fibs = {}
@@ -165,6 +194,8 @@ local function fibs_until(max)
 	return fibs
 end
 
+---@param n number The number of fibs to get
+---@return BN[]
 local function fib_n(n)
 	local bn = require("nums").bn
 
@@ -179,11 +210,13 @@ local function fib_n(n)
 	return fibs
 end
 
+---@param max number|nil The max number to go to
+---@return fun():BN|nil iter
 local function fib_iter(max)
 	local bn = require("nums").bn
 	local a, b = bn(0), bn(1)
 
-	local function next()
+	return function()
 		local result = a
 		if max ~= nil and a > max then
 			return
@@ -191,23 +224,48 @@ local function fib_iter(max)
 		a, b = b, a + b
 		return result
 	end
-	return next
 end
 
+---@param s number|BN The number of sides
+---@param n number|BN The nth number to get
+---@return number|BN
 local function polygonal_number(s, n)
 	return (s - 2) * (n * (n - 1)) // 2 + n
 end
 
+---@param s number|BN The number of sides
+---@return fun():BN iter
 local function polygonal_number_iter(s)
-	local i = 1
-	local function next()
-		local result = polygonal_number(s, i)
-		i = i + 1
+	local i = bn(1)
+	return function()
+		local result = polygonal_number(bn(s), i)
+		i = i + bn(1)
+		assert(type(result) == "BN")
 		return result
 	end
-	return next
 end
 
+---@param n number|BN The nth number to get
+---@return number|BN
+local function square_number(n)
+	return n * n
+end
+
+---@return fun():BN iter
+local function square_number_iter()
+	local i = 1
+	return function()
+		local result = i * i
+		i = i + 1
+		assert(type(result) == "BN")
+		return result
+	end
+end
+
+---@param a number|nil
+---@param b number|nil
+---@param c number|nil
+---@return fun():number|nil iter
 local function range(a, b, c)
 	local start = 1
 	local stop = 1
@@ -218,14 +276,20 @@ local function range(a, b, c)
 		stop = 1
 		step = 1
 	elseif b == nil and c == nil then
+		assert(type(a) == "number")
 		start = 1
 		stop = a
 		step = 1
 	elseif c == nil then
+		assert(type(a) == "number")
+		assert(type(b) == "number")
 		start = a
 		stop = b
 		step = 1
 	else
+		assert(type(a) == "number")
+		assert(type(b) == "number")
+		assert(type(c) == "number")
 		start = a
 		stop = b
 		step = c
@@ -236,7 +300,7 @@ local function range(a, b, c)
 	end
 
 	local i = start
-	local function next()
+	return function()
 		local result = i
 		if stop ~= nil and (step > 0 and i > stop) or (step < 0 and i < stop) then
 			return
@@ -244,9 +308,11 @@ local function range(a, b, c)
 		i = i + step
 		return result
 	end
-	return next
 end
 
+---@generic T
+---@param iter fun():T
+---@return T[]
 local function collect(iter)
 	local result = {}
 	for item in iter do
@@ -254,9 +320,13 @@ local function collect(iter)
 	end
 	return result
 end
-local function table_iter(t)
+
+---@generic T
+---@param t T[] An array of t
+---@return fun():T|nil iter
+local function iter(t)
 	local i = 1
-	local function next()
+	return function()
 		if i > #t then
 			return
 		end
@@ -264,7 +334,6 @@ local function table_iter(t)
 		i = i + 1
 		return result
 	end
-	return next
 end
 
 return {
@@ -293,6 +362,8 @@ return {
 	polygonal_num = {
 		polygonal_number = polygonal_number,
 		polygonal_number_iter = polygonal_number_iter,
+		square_number = square_number,
+		square_number_iter = square_number_iter,
 		triangle_number = function(n)
 			return polygonal_number(3, n)
 		end,
@@ -303,6 +374,6 @@ return {
 	tools = {
 		range = range,
 		collect = collect,
-		table_iter = table_iter,
+		table_iter = iter,
 	},
 }
