@@ -3,6 +3,88 @@
 local nums = require("nums")
 local bn = nums.bn
 
+---@param iter fun():any
+---@return fun():any
+local function cycle(iter)
+	local vals_scene = {}
+	local index = 1
+
+	for val in iter do
+		table.insert(vals_scene, val)
+	end
+
+	return function()
+		local result = vals_scene[index]
+		index = (index % #vals_scene) + 1
+		return result
+	end
+end
+
+---@param val any The value to repeat
+---@param n number | nil The number of times to repeat the value
+---@return fun():any
+local function rep(val, n)
+	local i = 1
+	return function()
+		if n ~= nil and i <= n then
+			i = i + 1
+			return val
+		end
+	end
+end
+
+local function chain(...)
+	local iterators = { ... }
+	local index = 1
+	local function next()
+		if index > #iterators then
+			return nil
+		end
+		local result = iterators[index]()
+		if result == nil then
+			print("iter done")
+			index = index + 1
+			return next()
+		end
+		return result
+	end
+	return next
+end
+
+---@param iter fun():any
+---@param predicate fun(val:any):boolean
+---@return fun():any iter
+local function dropwhile(iter, predicate)
+	local dropping = true
+	return function()
+		while dropping do
+			local result = iter()
+			if result == nil or not predicate(result) then
+				dropping = false
+				return result
+			end
+		end
+		return iter()
+	end
+end
+---@param iter fun():any
+---@param predicate fun(val:any):boolean
+---@return fun():any iter
+local function takewhile(iter, predicate)
+	local taking = true
+	return function()
+		if taking then
+			local result = iter()
+			if result == nil or not predicate(result) then
+				taking = false
+				return nil
+			end
+			return result
+		end
+		return nil
+	end
+end
+
 ---@generic T
 ---@param iter fun():T An iterator of a type that supports add
 ---@param initial T|nil The default value to start with
@@ -245,6 +327,13 @@ local function polygonal_number_iter(s)
 	end
 end
 
+local function triangle_number(n)
+	return polygonal_number(3, n)
+end
+local function triangle_number_iter()
+	return polygonal_number_iter(3)
+end
+
 ---@param n number|BN The nth number to get
 ---@return number|BN
 local function square_number(n)
@@ -338,10 +427,16 @@ end
 
 return {
 	functools = {
+		cycle = cycle,
+		rep = rep,
+		chain = chain,
+		dropwhile = dropwhile,
+		takewhile = takewhile,
 		sum = sum,
 		zip = zip,
 		filter = filter,
 		map = map,
+		range = range,
 	},
 	general = {
 		is_palindrome = is_palindrome,
@@ -362,18 +457,15 @@ return {
 	polygonal_num = {
 		polygonal_number = polygonal_number,
 		polygonal_number_iter = polygonal_number_iter,
+		triangle_number = triangle_number,
+		triangle_number_iter = triangle_number_iter,
 		square_number = square_number,
 		square_number_iter = square_number_iter,
-		triangle_number = function(n)
-			return polygonal_number(3, n)
-		end,
-		triangle_number_iter = function()
-			return polygonal_number_iter(3)
-		end,
 	},
 	tools = {
-		range = range,
 		collect = collect,
-		table_iter = iter,
+		iter = iter,
 	},
+	nums = nums,
+	bn = bn,
 }

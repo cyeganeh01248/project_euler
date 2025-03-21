@@ -4,7 +4,7 @@ run-all:
     @./lua src/main.lua
 
 run NUM:
-    @./lua -e 'local succeded, _ = pcall(function() local p = require("src/p{{NUM}}");print(p.problem());end); if succeded == false then print("errored") end'
+    @./lua -e 'local succeded, err = pcall(function() local p = require("src/p{{NUM}}");print(p.problem());end); if succeded == false then print("errored",err) end'
 
 list-problems:
     @ls src | grep 'p[0-9]*\.lua' | awk -F '.' '{print $1}' | sort -h
