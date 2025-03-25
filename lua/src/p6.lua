@@ -1,6 +1,4 @@
 local utils = require('src/utils')
-local bc = utils.bc
-local bn = utils.bn
 
 local function main()
 	local sum_square = utils.functools.sum(utils.functools.map(utils.functools.range(1, 100), function(n) return n * n end))
