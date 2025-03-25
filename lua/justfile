@@ -13,3 +13,12 @@ new NUM:
     @echo "local function main()\n\t-- TODO\n\treturn 0\nend\nreturn {\n\tproblem = main,\n}"> src/p{{NUM}}.lua
     @echo "print(\"p{{NUM}}\", require(\"src/p{{NUM}}\").problem())" >> src/main.lua
     @sort src/main.lua | uniq > src/main.lua2 && mv src/main.lua2 src/main.lua
+
+save-answers:
+    @just run-all | tee answers.txt
+
+compare-answers:
+    @just run-all | tee results.txt
+    diff answers.txt results.txt
+    rm results.txt
+    
