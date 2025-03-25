@@ -1,7 +1,7 @@
 ---@class BN
 
-local nums = require("nums")
-local bn = nums.bn
+local bc = require("bc")
+local bn = bc.new
 
 ---@param iter fun():any
 ---@return fun():any
