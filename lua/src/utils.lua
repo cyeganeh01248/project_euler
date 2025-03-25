@@ -425,6 +425,101 @@ local function iter(t)
 	end
 end
 
+---@class List
+List = {}
+List.__index = List
+
+---@generic T
+---@return List<T>
+function List.new()
+	return setmetatable({ first = 0, last = -1 }, List)
+end
+
+---@generic T
+---@param value T
+function List:pushleft(value)
+	local first = self.first - 1
+	self.first = first
+	self[first] = value
+end
+
+---@generic T
+---@param value T
+function List:pushright(value)
+	local last = self.last + 1
+	self.last = last
+	self[last] = value
+end
+
+---@generic T
+---@return T
+function List:popleft()
+	local first = self.first
+	if first > self.last then
+		error("list is empty")
+	end
+	local value = self[first]
+	self[first] = nil -- to allow garbage collection
+	self.first = first + 1
+	return value
+end
+
+---@generic T
+---@return T
+function List:popright()
+	local last = self.last
+	if self.first > last then
+		error("list is empty")
+	end
+	local value = self[last]
+	self[last] = nil -- to allow garbage collection
+	self.last = last - 1
+	return value
+end
+
+---@generic T
+---@return T
+function List:peekleft()
+	local first = self.first
+	if first > self.last then
+		error("list is empty")
+	end
+	return self[first]
+end
+
+---@generic T
+---@return T
+function List:peekright()
+	local last = self.last
+	if self.first > last then
+		error("list is empty")
+	end
+	return self[last]
+end
+
+---@generic T
+---@param value T
+---@return boolean
+function List:contains(value)
+	for v in self:iter() do
+		if v == value then
+			return true
+		end
+	end
+	return false
+end
+
+---@generic T
+---@return fun():T|nil iter
+function List:iter()
+	local index = self.first
+	return function()
+		local result = self[index]
+		index = index + 1
+		return result
+	end
+end
+
 return {
 	functools = {
 		cycle = cycle,
@@ -468,4 +563,5 @@ return {
 	},
 	nums = bc,
 	bn = bn,
+	List = List,
 }
