@@ -466,6 +466,6 @@ return {
 		collect = collect,
 		iter = iter,
 	},
-	nums = nums,
+	nums = bc,
 	bn = bn,
 }
